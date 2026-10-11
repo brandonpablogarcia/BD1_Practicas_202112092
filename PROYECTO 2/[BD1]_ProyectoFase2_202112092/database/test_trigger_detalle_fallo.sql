@@ -1,0 +1,100 @@
+USE ComercialLaEstrella;
+GO
+
+DECLARE @ID_TIENDA INT;
+DECLARE @ID_PRO INT;
+DECLARE @STOCK INT;
+DECLARE @PRECIO DECIMAL(10,2);
+DECLARE @ID_EMPLEADO INT;
+DECLARE @ID_CLIENTE INT;
+DECLARE @ID_ESTADO INT;
+DECLARE @ID_VENTA INT;
+
+-- Seleccionamos automaticamente un producto disponible
+-- en una tienda que tenga empleado.
+SELECT TOP 1
+    @ID_TIENDA = cp.ID_TIENDA,
+    @ID_PRO = cp.ID_PRO,
+    @STOCK = cp.EXISTENCIA_ACTUAL_CAT_PRO,
+    @PRECIO = cp.PRECIO_VIGENTE_CAT_PRO
+FROM dbo.CATALOGO_PRODUCTO cp
+WHERE EXISTS (
+    SELECT 1
+    FROM dbo.EMPLEADO e
+    WHERE e.ID_TIENDA = cp.ID_TIENDA
+)
+ORDER BY cp.ID_TIENDA, cp.ID_PRO;
+
+SELECT TOP 1
+    @ID_EMPLEADO = ID_EMPLEADO
+FROM dbo.EMPLEADO
+WHERE ID_TIENDA = @ID_TIENDA;
+
+SELECT TOP 1
+    @ID_CLIENTE = ID_CLIENTE
+FROM dbo.CLIENTE
+ORDER BY ID_CLIENTE;
+
+SELECT TOP 1
+    @ID_ESTADO = ID_ES_VENTA
+FROM dbo.ESTADO_VENTA
+WHERE UPPER(NOMBRE_ES_VENTA) = 'REGISTRADA';
+
+SELECT
+    @ID_VENTA = ISNULL(MAX(ID_VENTA), 0) + 1
+FROM dbo.VENTA;
+
+PRINT 'Stock actual:';
+SELECT @STOCK AS STOCK_ACTUAL;
+
+BEGIN TRY
+
+    BEGIN TRANSACTION;
+
+    INSERT INTO dbo.VENTA (
+        ID_VENTA,
+        FECHA_VENTA,
+        ID_TIENDA,
+        ID_EMPLEADO,
+        ID_CLIENTE,
+        ID_ES_VENTA
+    )
+    VALUES (
+        @ID_VENTA,
+        CAST(GETDATE() AS DATE),
+        @ID_TIENDA,
+        @ID_EMPLEADO,
+        @ID_CLIENTE,
+        @ID_ESTADO
+    );
+
+    -- Solicitamos una unidad mas que el stock disponible.
+    INSERT INTO dbo.DESGLOSE_VENTA (
+        ID_VENTA,
+        ID_PRO,
+        CANTIDAD_DES_VENTA,
+        PRECIO_UNITARIO_DES_VENTA,
+        SUBTOTAL_DES_VENTA
+    )
+    VALUES (
+        @ID_VENTA,
+        @ID_PRO,
+        @STOCK + 1,
+        @PRECIO,
+        (@STOCK + 1) * @PRECIO
+    );
+
+    COMMIT TRANSACTION;
+
+END TRY
+BEGIN CATCH
+
+    IF @@TRANCOUNT > 0
+        ROLLBACK TRANSACTION;
+
+    SELECT
+        ERROR_NUMBER() AS ERROR_NUMERO,
+        ERROR_MESSAGE() AS MENSAJE;
+
+END CATCH;
+GO

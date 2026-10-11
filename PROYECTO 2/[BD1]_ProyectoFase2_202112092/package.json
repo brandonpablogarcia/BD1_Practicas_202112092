@@ -1,0 +1,30 @@
+{
+  "name": "bd1-proyecto-fase2-202112092",
+  "version": "1.0.0",
+  "description": "Backend Comercial La Estrella",
+  "keywords": [
+    "Enter"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "Enter"
+  },
+  "license": "ISC",
+  "author": "Enter",
+  "type": "commonjs",
+  "main": "src/server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.7",
+    "express": "^5.3.0",
+    "mssql": "^12.7.4"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}
