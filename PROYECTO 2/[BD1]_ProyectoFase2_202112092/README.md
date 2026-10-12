@@ -1,7 +1,7 @@
 # Proyecto Fase 2 - Comercial La Estrella
 
 **Curso:** Bases de Datos 1  
-**Carnet:** 202112092  
+**Nombre:** Brandon Eduardo Pablo Garcia - 202112092  
 **Proyecto:** Backend y Exposición de Servicios para la Base de Datos Comercial La Estrella
 
 ---
