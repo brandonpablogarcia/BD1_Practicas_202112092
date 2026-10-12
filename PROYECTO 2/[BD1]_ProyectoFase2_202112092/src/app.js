@@ -5,6 +5,10 @@ const { getConnection } = require('./config/database');
 const paisRoutes = require('./routes/paisRoutes');
 const cargoRoutes = require('./routes/cargoRoutes');
 const simpleEntityRoutes = require('./routes/simpleEntityRoutes');
+const catalogoProductoRoutes = require('./routes/catalogoProductoRoutes');
+const detalleVentaRoutes = require('./routes/detalleVentaRoutes');
+const pagoRoutes = require('./routes/pagoRoutes');
+const reporteRoutes = require('./routes/reporteRoutes');
 
 const {
     notFound,
@@ -55,10 +59,19 @@ app.get('/api/health', async (req, res, next) => {
 // Rutas CRUD de paises.
 app.use('/api/paises', paisRoutes);
 app.use('/api/cargos', cargoRoutes);
+
 // Registra las entidades que utilizan el CRUD reutilizable.
 simpleEntityRoutes.forEach(({ path, router }) => {
     app.use(path, router);
 });
+// CRUD de catalogo de productos.
+app.use('/api/catalogo-productos',catalogoProductoRoutes);
+// CRUD de detalles de venta.
+app.use('/api/detalles',detalleVentaRoutes);
+// CRUD de pagos.
+app.use('/api/pagos',pagoRoutes);
+// Endpoints de las vistas analiticas. CRUD de reportes.
+app.use('/api/reportes',reporteRoutes);
 
 // Deben permanecer al final de todas las rutas.
 app.use(notFound);
